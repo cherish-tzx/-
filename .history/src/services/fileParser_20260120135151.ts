@@ -2,7 +2,6 @@ import * as XLSX from 'xlsx'
 import * as mammoth from 'mammoth'
 import { ParsedContent, FileInfo, ParseError } from '../types'
 import { getFileType } from '../utils/fileValidator'
-import { textNormalizer } from './textNormalizer'
 
 /**
  * 文件解析服务类
@@ -58,16 +57,8 @@ export class FileParser {
                 // 将每行数据转换为文本
                 jsonData.forEach(row => {
                     if (Array.isArray(row) && row.length > 0) {
-                        // 对每个单元格进行清理：trim() 移除前后空白
-                        const cleanedCells = row.map(cell => String(cell ?? '').trim())
-
-                        // 移除行尾的空单元格
-                        while (cleanedCells.length > 0 && cleanedCells[cleanedCells.length - 1] === '') {
-                            cleanedCells.pop()
-                        }
-
-                        // 过滤空单元格和纯空白单元格，然后用制表符连接
-                        const rowText = cleanedCells
+                        const rowText = row
+                            .map(cell => String(cell ?? '').trim())
                             .filter(cell => cell !== '')
                             .join('\t')
 
@@ -116,17 +107,14 @@ export class FileParser {
             const arrayBuffer = await file.arrayBuffer()
             const result = await mammoth.extractRawText({ arrayBuffer })
 
-            // 使用 TextNormalizer 规范化提取的文本
-            const normalizedText = textNormalizer.normalizeText(result.value)
-
             // 统计段落数（以双换行符分隔）
-            const paragraphs = normalizedText
-                .split('\n')
+            const paragraphs = result.value
+                .split('\n\n')
                 .filter(p => p.trim().length > 0)
                 .length
 
             return {
-                text: normalizedText,
+                text: result.value,
                 metadata: {
                     paragraphs
                 }

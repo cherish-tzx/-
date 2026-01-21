@@ -2,7 +2,6 @@ import * as XLSX from 'xlsx'
 import * as mammoth from 'mammoth'
 import { ParsedContent, FileInfo, ParseError } from '../types'
 import { getFileType } from '../utils/fileValidator'
-import { textNormalizer } from './textNormalizer'
 
 /**
  * 文件解析服务类
@@ -116,17 +115,14 @@ export class FileParser {
             const arrayBuffer = await file.arrayBuffer()
             const result = await mammoth.extractRawText({ arrayBuffer })
 
-            // 使用 TextNormalizer 规范化提取的文本
-            const normalizedText = textNormalizer.normalizeText(result.value)
-
             // 统计段落数（以双换行符分隔）
-            const paragraphs = normalizedText
-                .split('\n')
+            const paragraphs = result.value
+                .split('\n\n')
                 .filter(p => p.trim().length > 0)
                 .length
 
             return {
-                text: normalizedText,
+                text: result.value,
                 metadata: {
                     paragraphs
                 }

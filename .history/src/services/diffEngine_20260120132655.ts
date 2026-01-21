@@ -1,6 +1,5 @@
 import { diffLines, diffChars, Change } from 'diff'
 import { DiffResult, DiffLine, InlineChange } from '../types'
-import { textNormalizer } from './textNormalizer'
 
 /**
  * 差异对比引擎类
@@ -13,12 +12,8 @@ export class DiffEngine {
      * @returns 差异结果
      */
     computeDiff(content1: string, content2: string): DiffResult {
-        // 规范化文本后再进行对比
-        const normalizedContent1 = textNormalizer.normalizeText(content1)
-        const normalizedContent2 = textNormalizer.normalizeText(content2)
-
-        const lines1 = normalizedContent1.split('\n').filter(line => line.length > 0)
-        const lines2 = normalizedContent2.split('\n').filter(line => line.length > 0)
+        const lines1 = content1.split('\n')
+        const lines2 = content2.split('\n')
 
         const { leftLines, rightLines } = this.lineDiff(lines1, lines2)
 
@@ -126,7 +121,7 @@ export class DiffEngine {
                 // 计算相似度，如果相似度高，认为是修改
                 const similarity = this.calculateLineSimilarity(leftLine.content, rightLine.content)
 
-                if (similarity > 0.5) { // 相似度阈值从 0.3 提高到 0.5
+                if (similarity > 0.3) { // 相似度阈值
                     // 标记为修改
                     leftLine.type = 'modified'
                     rightLine.type = 'modified'

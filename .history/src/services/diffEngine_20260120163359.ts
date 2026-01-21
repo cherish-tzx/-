@@ -126,7 +126,7 @@ export class DiffEngine {
                 // 计算相似度，如果相似度高，认为是修改
                 const similarity = this.calculateLineSimilarity(leftLine.content, rightLine.content)
 
-                if (similarity > 0.5) { // 相似度阈值从 0.3 提高到 0.5
+                if (similarity > 0.3) { // 相似度阈值
                     // 标记为修改
                     leftLine.type = 'modified'
                     rightLine.type = 'modified'
